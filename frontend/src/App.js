@@ -290,7 +290,7 @@ function HowItWorks() {
 
 /* ═══════════════════════ PROGRESS RING ═════════════════ */
 
-function CircProgress({ pct, isHigh }) {
+function CircProgress({ pct, tier }) {
   const R = 56, C = 2 * Math.PI * R;
   const [offset, setOffset] = useState(C);
   
@@ -302,7 +302,7 @@ function CircProgress({ pct, isHigh }) {
   return (
     <svg viewBox="0 0 140 140" width="148" height="148">
       <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10" stroke="rgba(255,255,255,0.07)" />
-      <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10" strokeDasharray={C} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 70 70)" className={`circ-fg ${isHigh ? 'circ-danger' : 'circ-success'}`} style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1)' }} />
+      <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10" strokeDasharray={C} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 70 70)" className={`circ-fg circ-${tier}`} style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1)' }} />
       <text x="70" y="64" textAnchor="middle" fill="#fff" fontSize="20" fontWeight="bold" fontFamily="Outfit">{pct}%</text>
       <text x="70" y="83" textAnchor="middle" fill="#94a3b8" fontSize="10">Probability</text>
     </svg>
@@ -431,8 +431,18 @@ function Checker() {
     return Math.min(100, Math.max(0, ((val - f.min) / (f.max - f.min)) * 100)).toFixed(2);
   };
 
-  const isHighRisk = result?.prediction === 'High Risk';
-  const probNum    = result ? parseFloat(result.probability) : 0;
+  const getRiskTier = (pred) => {
+    if (!pred) return 'low';
+    if (pred === 'Very Low Risk') return 'very-low';
+    if (pred === 'Low Risk') return 'low';
+    if (pred === 'Moderate Risk') return 'moderate';
+    if (pred === 'High Risk') return 'high';
+    if (pred === 'Very High Risk') return 'very-high';
+    return 'low';
+  };
+
+  const riskTier = getRiskTier(result?.prediction);
+  const probNum  = result ? parseFloat(result.probability) : 0;
 
   return (
     <section id="checker" className="section alt-section" ref={sectionRef}>
@@ -501,7 +511,7 @@ function Checker() {
 
         {result && (
           <div className="result-wrapper anim-up">
-            <div id="pdf-container" ref={resultRef} className={`result-card ${isHighRisk ? 'result-high' : 'result-low'}`}>
+            <div id="pdf-container" ref={resultRef} className={`result-card result-${riskTier}`}>
               <div className="result-header-print">
                 <h3>🩺 DiabetesAI Clinical Report</h3>
                 <p>Generated strictly for informational & screening purposes.</p>
@@ -509,8 +519,8 @@ function Checker() {
 
               <div className="result-body">
                 <div className="result-info">
-                  <div className={`risk-badge ${isHighRisk ? 'badge-danger' : 'badge-success'}`}>
-                    {isHighRisk ? '⚠️ High Risk' : '🟢 Low Risk'}
+                  <div className={`risk-badge badge-${riskTier}`}>
+                    {result.prediction}
                   </div>
                   
                   <p className="result-analysis">{result.analysis}</p>
@@ -526,7 +536,7 @@ function Checker() {
                 </div>
 
                 <div className="result-visual">
-                  <CircProgress pct={probNum} isHigh={isHighRisk} />
+                  <CircProgress pct={probNum} tier={riskTier} />
                 </div>
               </div>
               

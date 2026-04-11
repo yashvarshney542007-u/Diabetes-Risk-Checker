@@ -41,13 +41,27 @@ async def predict_risk(data: HealthData):
     prediction = model.predict(scaled_data)[0]
     probability = model.predict_proba(scaled_data)[0][1]
 
-    # Analysis & Comprehensive Action Plan
-    result = "High Risk" if prediction == 1 else "Low Risk"
-    
+    # Analysis & 5-Tier Categorization
+    if probability < 0.20:
+        result = "Very Low Risk"
+        emoji = "🟢"
+    elif probability < 0.40:
+        result = "Low Risk"
+        emoji = "🟢"
+    elif probability < 0.60:
+        result = "Moderate Risk"
+        emoji = "🟡"
+    elif probability < 0.80:
+        result = "High Risk"
+        emoji = "🟠"
+    else:
+        result = "Very High Risk"
+        emoji = "🔴"
+        
     # Generate dynamic, personalized advice
     action_plan = []
     
-    if prediction == 1:
+    if probability >= 0.50:
         action_plan.append("🔴 Immediate: Schedule a clinical blood test (HbA1c) with your doctor.")
         if data.glucose > 140:
             action_plan.append("🍽️ Diet: Consider a low-glycemic index diet. Significantly limit refined carbohydrates and added sugars.")

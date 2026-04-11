@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.calibration import CalibratedClassifierCV
 
 # 1. Load Data
 df = pd.read_csv('data/diabetes.csv')
@@ -34,9 +35,10 @@ y = df_clean['Outcome']
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# 6. Train Model (Tuned parameters from GridSearch)
+# 6. Train Model (Tuned parameters from GridSearch + Calibration)
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-model = RandomForestClassifier(
+
+rf_model = RandomForestClassifier(
     n_estimators=500, 
     max_depth=15, 
     min_samples_split=2, 
@@ -44,6 +46,9 @@ model = RandomForestClassifier(
     bootstrap=True, 
     random_state=42
 )
+
+# Apply Platt Scaling (sigmoid calibration) to fix Random Forest's natural probability compression
+model = CalibratedClassifierCV(estimator=rf_model, method='sigmoid', cv=5)
 model.fit(X_train, y_train)
 
 # 6. Evaluate Model

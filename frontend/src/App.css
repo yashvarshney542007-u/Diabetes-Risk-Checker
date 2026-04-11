@@ -172,8 +172,11 @@ button { font-family: inherit; }
 /* ── RESULTS & PDF ── */
 .result-wrapper { margin-top: 32px; display: flex; flex-direction: column; gap: 16px; align-items: flex-end; }
 .result-card { width: 100%; border-radius: 20px; border: 1px solid var(--border); padding: 40px; background: var(--bg); position: relative; overflow: hidden; /* Solid background for PDF export */ }
-.result-high { border-top: 4px solid var(--danger); }
-.result-low { border-top: 4px solid var(--success); }
+.result-very-low { border-top: 4px solid #10b981; }
+.result-low { border-top: 4px solid #34d399; }
+.result-moderate { border-top: 4px solid #f59e0b; }
+.result-high { border-top: 4px solid #ef4444; }
+.result-very-high { border-top: 4px solid #b91c1c; }
 
 /* Hidden unless printing via JS */
 .result-header-print { display: none; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
@@ -183,14 +186,24 @@ button { font-family: inherit; }
 .result-body { display: flex; gap: 40px; align-items: flex-start; justify-content: space-between; margin-bottom: 30px; }
 .result-info { flex: 1; }
 .risk-badge { display: inline-flex; font: 800 1.2rem var(--font-hd); padding: 10px 24px; border-radius: 30px; margin-bottom: 20px; }
-.badge-danger { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
-.badge-success { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+
+.badge-very-low { background: rgba(16,185,129,0.08); color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
+.badge-low { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
+.badge-moderate { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.badge-high { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-very-high { background: rgba(185,28,28,0.2); color: #f87171; border: 1px solid rgba(185,28,28,0.4); }
+
 .result-analysis { color: var(--sub); font-size: 0.95rem; line-height: 1.6; padding-left: 16px; border-left: 3px solid var(--violet); margin-bottom: 24px; }
 .precautions-title { font: 800 1.1rem var(--font-hd); margin-bottom: 12px; }
 .precautions-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .precaution-item { display: flex; font-size: 0.9rem; color: var(--sub); line-height: 1.5; gap: 10px; }
 .prec-dot { width: 6px; height: 6px; background: var(--violet-li); border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
-.circ-danger { stroke: var(--danger); } .circ-success { stroke: var(--success); }
+
+.circ-very-low { stroke: #10b981; }
+.circ-low { stroke: #34d399; }
+.circ-moderate { stroke: #f59e0b; }
+.circ-high { stroke: #ef4444; }
+.circ-very-high { stroke: #b91c1c; }
 .result-disclaimer { font-size: 0.75rem; color: var(--muted); padding: 16px; background: rgba(255,255,255,0.02); border-radius: 8px; }
 
 .btn-download { background: #334155; color: #fff; border: 1px solid #475569; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
