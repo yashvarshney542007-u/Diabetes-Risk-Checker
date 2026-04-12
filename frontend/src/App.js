@@ -59,6 +59,35 @@ function useInView(threshold = 0.15) {
   return [ref, inView];
 }
 
+/* ═══════════════════════ DISCLAIMER MODAL ═══════════════ */
+
+function DisclaimerModal() {
+  const [open, setOpen] = useState(false);
+  
+  useEffect(() => {
+    const accepted = localStorage.getItem('diabetesDisclaimerAccepted');
+    if (!accepted) setOpen(true);
+  }, []);
+
+  const accept = () => {
+    localStorage.setItem('diabetesDisclaimerAccepted', 'true');
+    setOpen(false);
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-box anim-up">
+        <h2>⚠️ Clinical & Medical Disclaimer</h2>
+        <p>This AI assessment provides probabilistic screening data and is <strong>not a medical diagnosis</strong>.</p>
+        <p>For the most accurate results, you must input recent biometric lab readings (like fasting insulin and plasma glucose). If you do not have recent bloodwork, please enable <strong>Lifestyle Mode</strong> below to use standardized medians.</p>
+        <button className="btn-primary" onClick={accept}>I Understand and Agree</button>
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════════ NAVBAR ═════════════════════════ */
 
 function Navbar() {
@@ -329,7 +358,11 @@ function ClinicalTermsTable() {
         <header className={`section-header${inView ? ' anim-up' : ''}`}>
           <div className="section-tag">Clinical Reference</div>
           <h2 className="section-title">Parameter Guide</h2>
-          <p className="section-subtitle">Clinically approved definitions for the biological markers evaluated by our AI.</p>
+          <p className="section-subtitle">
+            Clinically approved definitions for the biological markers evaluated by our AI.
+            <br/><br/>
+            <strong>Dataset Context:</strong> Our model is calibrated on the historically significant Pima Indian Diabetes dataset. Because this dataset primarily recorded clinical data from women, predictive probabilities for male users are mathematically extrapolated and should be interpreted accordingly.
+          </p>
         </header>
 
         <div className={`table-container${inView ? ' anim-up-delay' : ''}`}>
@@ -363,12 +396,22 @@ function ClinicalTermsTable() {
 
 function Checker() {
   const [sectionRef, inView] = useInView(0.08);
-  const [formData, setFormData] = useState(DEFAULT_VALUES);
+  const [formData, setFormData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('diabetesFormData');
+      return saved ? JSON.parse(saved) : DEFAULT_VALUES;
+    } catch { return DEFAULT_VALUES; }
+  });
+  const [lifestyleMode, setLifestyleMode] = useState(false);
   const [result, setResult]     = useState(null);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const resultRef = useRef(null);
+
+  useEffect(() => {
+    localStorage.setItem('diabetesFormData', JSON.stringify(formData));
+  }, [formData]);
 
   const validateField = (key, value) => {
     const field = FIELDS.find(f => f.key === key);
@@ -393,6 +436,8 @@ function Checker() {
     let hasError = false;
     let newErrs = {};
     Object.keys(formData).forEach(k => {
+      // Skip validation for lab fields if in Lifestyle Mode
+      if (lifestyleMode && ['glucose', 'skinThickness', 'insulin'].includes(k)) return;
       const err = validateField(k, formData[k]);
       if (err) { newErrs[k] = err; hasError = true; }
     });
@@ -402,6 +447,14 @@ function Checker() {
     try {
       const payload = {};
       Object.keys(formData).forEach(k => payload[k] = parseFloat(formData[k]));
+      
+      // Auto-inject median healthy values if lacking lab results
+      if (lifestyleMode) {
+        payload.glucose = DEFAULT_VALUES.glucose;
+        payload.skinThickness = DEFAULT_VALUES.skinThickness;
+        payload.insulin = DEFAULT_VALUES.insulin;
+      }
+
       const res = await axios.post('http://localhost:8000/predict', payload);
       setResult(res.data);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
@@ -451,12 +504,21 @@ function Checker() {
           <div className="section-tag">Assessment</div>
           <h2 className="section-title">Check Your Risk</h2>
           <p className="section-subtitle">Enter your clinical readings below. The system rigorously validates data against biological thresholds.</p>
+          <label className="mode-toggle" title="Enable this if you don't know your lab results like Insulin or Glucose">
+            <div className="switch">
+              <input type="checkbox" checked={lifestyleMode} onChange={e => setLifestyleMode(e.target.checked)} />
+              <div className="slider round"></div>
+            </div>
+            <span className="mode-lbl">Lifestyle Mode (Missing Lab Results)</span>
+          </label>
         </header>
 
         <div className={`checker-card${inView ? ' anim-up-delay' : ''}`}>
           <form onSubmit={handleSubmit} noValidate>
             <div className="fields-grid">
               {FIELDS.map((f) => {
+                if (lifestyleMode && ['glucose', 'skinThickness', 'insulin'].includes(f.key)) return null;
+
                 const pct = getSliderPct(f);
                 const isErr = !!fieldErrors[f.key];
                 return (
@@ -560,6 +622,7 @@ function Checker() {
 export default function App() {
   return (
     <div className="app">
+      <DisclaimerModal />
       <Navbar />
       <Hero />
       <AboutDiabetes />

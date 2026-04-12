@@ -212,6 +212,24 @@ button { font-family: inherit; }
 .footer-bottom { text-align: center; border-top: 1px solid var(--border); padding: 30px 0; color: var(--muted); font-size: 0.8rem; }
 
 
+/* ── DISCLAIMER MODAL ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-box { background: var(--surface); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; max-width: 500px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+.modal-box h2 { font: 800 1.5rem var(--font-hd); color: var(--danger); margin-bottom: 20px; }
+.modal-box p { color: var(--text); line-height: 1.6; margin-bottom: 16px; font-size: 0.95rem; }
+.modal-box .btn-primary { width: 100%; justify-content: center; margin-top: 10px; }
+
+/* ── LIFESTYLE TOGGLE ── */
+.mode-toggle { display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); padding: 10px 20px; border-radius: 50px; border: 1px solid var(--border); margin-top: 20px; cursor: pointer; transition: 0.2s; }
+.mode-toggle:hover { background: rgba(255,255,255,0.08); }
+.mode-lbl { font-size: 0.85rem; color: var(--sub); font-weight: 600; cursor: pointer; }
+.switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; cursor: pointer; }
+.slider.round { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 34px; }
+.slider.round:before { position: absolute; content: ""; height: 14px; width: 14px; left: 4px; bottom: 4px; background-color: #fff; transition: .4s; border-radius: 50%; }
+.switch input:checked + .slider.round { background-color: var(--violet); }
+.switch input:checked + .slider.round:before { transform: translateX(18px); }
+
 /* ── RESPONSIVE & PDF PRINT FIXES ── */
 @media (max-width: 900px) {
   .hero-container, .stats-flex, .result-body { grid-template-columns: 1fr; flex-direction: column; text-align: center; gap: 40px; }
