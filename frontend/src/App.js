@@ -90,7 +90,7 @@ function DisclaimerModal() {
 
 /* ═══════════════════════ NAVBAR ═════════════════════════ */
 
-function Navbar() {
+function Navbar({ theme, toggleTheme }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -119,14 +119,23 @@ function Navbar() {
           ))}
         </ul>
 
-        <button className="nav-cta" onClick={() => scrollTo('checker')}>Check Risk</button>
+        <div className="nav-actions" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button 
+            className="theme-toggle" 
+            onClick={toggleTheme} 
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <button className="nav-cta" onClick={() => scrollTo('checker')}>Check Risk</button>
 
-        <button
-          id="hamburger-btn"
-          className={`hamburger${menuOpen ? ' hb-open' : ''}`}
-          onClick={() => setMenuOpen(o => !o)}
-          aria-label="Toggle menu"
-        ><span /><span /><span /></button>
+          <button
+            id="hamburger-btn"
+            className={`hamburger${menuOpen ? ' hb-open' : ''}`}
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label="Toggle menu"
+          ><span /><span /><span /></button>
+        </div>
       </div>
     </nav>
   );
@@ -332,8 +341,8 @@ function CircProgress({ pct, tier }) {
     <svg viewBox="0 0 140 140" width="148" height="148">
       <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10" stroke="rgba(255,255,255,0.07)" />
       <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10" strokeDasharray={C} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 70 70)" className={`circ-fg circ-${tier}`} style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1)' }} />
-      <text x="70" y="64" textAnchor="middle" fill="#fff" fontSize="20" fontWeight="bold" fontFamily="Outfit">{pct}%</text>
-      <text x="70" y="83" textAnchor="middle" fill="#94a3b8" fontSize="10">Probability</text>
+      <text x="70" y="64" textAnchor="middle" fill="var(--text)" fontSize="20" fontWeight="bold" fontFamily="Outfit">{pct}%</text>
+      <text x="70" y="83" textAnchor="middle" fill="var(--sub)" fontSize="10">Probability</text>
     </svg>
   );
 }
@@ -620,10 +629,21 @@ function Checker() {
 /* ═══════════════════════ ROOT APP ═══════════════════════ */
 
 export default function App() {
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('diabetesTheme') || 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('diabetesTheme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+
   return (
     <div className="app">
       <DisclaimerModal />
-      <Navbar />
+      <Navbar theme={theme} toggleTheme={toggleTheme} />
       <Hero />
       <AboutDiabetes />
       <GlobalStats />
