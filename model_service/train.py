@@ -35,20 +35,30 @@ y = df_clean['Outcome']
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# 6. Train Model (Tuned parameters from GridSearch + Calibration)
+# 6. Train Model (Hyperparameter Tuning with GridSearch + Calibration)
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-rf_model = RandomForestClassifier(
-    n_estimators=500, 
-    max_depth=15, 
-    min_samples_split=2, 
-    min_samples_leaf=4, 
-    bootstrap=True, 
-    random_state=42
-)
+from sklearn.model_selection import GridSearchCV
+
+# Define the parameter grid
+param_grid = {
+    'n_estimators': [400, 500, 600, 700],
+    'max_depth': [12, 15, 18, None],
+    'min_samples_split': [2, 3, 4],
+    'min_samples_leaf': [2, 3, 4],
+    'bootstrap': [True]
+}
+
+print("[+] Running GridSearchCV for Hyperparameter Tuning (this may take a minute)...")
+rf_base = RandomForestClassifier(random_state=42)
+grid_search = GridSearchCV(estimator=rf_base, param_grid=param_grid, cv=5, n_jobs=-1, scoring='accuracy')
+grid_search.fit(X_train, y_train)
+
+print(f"[+] Best Parameters: {grid_search.best_params_}")
+best_rf = grid_search.best_estimator_
 
 # Apply Platt Scaling (sigmoid calibration) to fix Random Forest's natural probability compression
-model = CalibratedClassifierCV(estimator=rf_model, method='sigmoid', cv=5)
+model = CalibratedClassifierCV(estimator=best_rf, method='sigmoid', cv=5)
 model.fit(X_train, y_train)
 
 # 6. Evaluate Model
