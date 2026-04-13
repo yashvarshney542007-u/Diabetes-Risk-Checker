@@ -3,31 +3,42 @@ import axios from 'axios';
 import html2pdf from 'html2pdf.js';
 import './App.css';
 
-/* ═══════════════════════ CONSTANTS ══════════════════════ */
+/* ═══════════════════════ SVG ICONS (Professional Clinical) ══════════ */
 
-const FIELDS = [
-  { key: 'glucose',       label: 'Glucose',           icon: '🩸', min: 0,   max: 400,  step: 1,     unit: 'mg/dL',  info: 'Plasma glucose concentration (2-hr test)' },
-  { key: 'bloodPressure', label: 'Blood Pressure',    icon: '💓', min: 0,   max: 200,  step: 1,     unit: 'mmHg',   info: 'Diastolic blood pressure' },
-  { key: 'skinThickness', label: 'Skin Thickness',    icon: '📏', min: 0,   max: 100,  step: 1,     unit: 'mm',     info: 'Triceps skin fold thickness' },
-  { key: 'insulin',       label: 'Insulin',           icon: '💉', min: 0,   max: 1000, step: 1,     unit: 'μU/mL',  info: '2-hour serum insulin level' },
-  { key: 'bmi',           label: 'BMI',               icon: '⚖️', min: 10,  max: 80,   step: 0.1,   unit: 'kg/m²',  info: 'Body mass index' },
-  { key: 'dpf',           label: 'Diabetes Pedigree', icon: '🧬', min: 0,   max: 3,    step: 0.001, unit: 'score',  info: 'Hereditary risk score' },
-  { key: 'age',           label: 'Age',               icon: '🎂', min: 1,   max: 120,  step: 1,     unit: 'years',  info: 'Your age in years' },
-];
+const Icons = {
+  Pulse:    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+  Glucose:  () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M2 12h20"/></svg>,
+  Pressure: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>,
+  Skin:     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+  Syringe:  () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 2-3 3M2 22l1.5-1.5M11 11l4-4M5 17l4-4M8.5 13.5l3 3M14 8.5l3 3"/></svg>,
+  Chart:    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>,
+  Dna:      () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/><path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/><path d="m17 6-2.5-2.5"/><path d="m14 8-1-1"/><path d="m7 18 2.5 2.5"/><path d="m10 16 1 1"/><path d="M2 9c6.667 6 13.333 0 20 6"/></svg>,
+  Clock:    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  Check:    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  Upload:   () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+  Cpu:      () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>,
+  FileText: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
+  Alert:    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+};
+
+/* ═══════════════════════ CONSTANTS ═════════════════════════ */
 
 const DEFAULT_VALUES = {
   glucose: 120, bloodPressure: 70, skinThickness: 20,
-  insulin: 80,  bmi: 25.0,         dpf: 0.50,         age: 30,
+  insulin: 80,  bmi: 25.0, dpf: 0.50, age: 30,
 };
 
-const PARTICLES = [
-  { left: 8,  delay: 0,   dur: 8  }, { left: 18, delay: 2,   dur: 11 },
-  { left: 28, delay: 4,   dur: 9  }, { left: 42, delay: 1,   dur: 12 },
-  { left: 55, delay: 3,   dur: 8  }, { left: 68, delay: 5,   dur: 10 },
-  { left: 78, delay: 0.5, dur: 13 }, { left: 88, delay: 2.5, dur: 9  },
+const FIELDS = [
+  { key: 'glucose',       label: 'Glucose',           Icon: Icons.Glucose,  min: 0,  max: 400,  step: 1,     unit: 'mg/dL', info: 'Plasma glucose concentration (2-hr oral test)' },
+  { key: 'bloodPressure', label: 'Blood Pressure',    Icon: Icons.Pressure, min: 0,  max: 200,  step: 1,     unit: 'mmHg',  info: 'Diastolic blood pressure' },
+  { key: 'skinThickness', label: 'Skin Thickness',    Icon: Icons.Skin,     min: 0,  max: 100,  step: 1,     unit: 'mm',    info: 'Triceps skinfold thickness' },
+  { key: 'insulin',       label: 'Insulin',           Icon: Icons.Syringe,  min: 0,  max: 1000, step: 1,     unit: 'μU/mL', info: '2-hour serum insulin level' },
+  { key: 'bmi',           label: 'BMI',               Icon: Icons.Chart,    min: 10, max: 80,   step: 0.1,   unit: 'kg/m²', info: 'Body mass index (weight / height²)' },
+  { key: 'dpf',           label: 'Diabetes Pedigree', Icon: Icons.Dna,      min: 0,  max: 3,    step: 0.001, unit: 'score', info: 'Hereditary diabetes risk score' },
+  { key: 'age',           label: 'Age',               Icon: Icons.Clock,    min: 1,  max: 120,  step: 1,     unit: 'years', info: 'Your age in years' },
 ];
 
-/* ═══════════════════════ HOOKS ══════════════════════════ */
+/* ═══════════════════════ HOOKS ═════════════════════════════ */
 
 function useCountUp(target, duration = 2000, trigger = false) {
   const [count, setCount] = useState(0);
@@ -59,36 +70,36 @@ function useInView(threshold = 0.15) {
   return [ref, inView];
 }
 
-/* ═══════════════════════ DISCLAIMER MODAL ═══════════════ */
+/* ═══════════════════════ DISCLAIMER MODAL ══════════════════ */
 
 function DisclaimerModal() {
   const [open, setOpen] = useState(false);
-  
   useEffect(() => {
-    const accepted = localStorage.getItem('diabetesDisclaimerAccepted');
-    if (!accepted) setOpen(true);
+    if (!localStorage.getItem('diabetesDisclaimerAccepted')) setOpen(true);
   }, []);
-
   const accept = () => {
     localStorage.setItem('diabetesDisclaimerAccepted', 'true');
     setOpen(false);
   };
-
   if (!open) return null;
-
   return (
     <div className="modal-overlay">
       <div className="modal-box anim-up">
-        <h2>⚠️ Clinical & Medical Disclaimer</h2>
-        <p>This AI assessment provides probabilistic screening data and is <strong>not a medical diagnosis</strong>.</p>
-        <p>For the most accurate results, you must input recent biometric lab readings (like fasting insulin and plasma glucose). If you do not have recent bloodwork, please enable <strong>Lifestyle Mode</strong> below to use standardized medians.</p>
+        <h2 style={{ color: 'var(--danger)' }}>
+          <Icons.Alert /> Clinical Disclaimer
+        </h2>
+        <p>This tool provides <strong>probabilistic screening data</strong> and is not a medical diagnosis.</p>
+        <p>
+          For best accuracy, input recent lab readings for insulin and glucose.
+          If unavailable, enable <strong>Lifestyle Mode</strong> to use clinical medians.
+        </p>
         <button className="btn-primary" onClick={accept}>I Understand and Agree</button>
       </div>
     </div>
   );
 }
 
-/* ═══════════════════════ NAVBAR ═════════════════════════ */
+/* ═══════════════════════ NAVBAR ════════════════════════════ */
 
 function Navbar({ theme, toggleTheme }) {
   const [scrolled, setScrolled] = useState(false);
@@ -109,26 +120,25 @@ function Navbar({ theme, toggleTheme }) {
     <nav className={`navbar${scrolled ? ' nav-scrolled' : ''}`}>
       <div className="nav-inner">
         <button className="nav-logo" onClick={() => scrollTo('hero')}>
-          <span className="logo-emblem">🩺</span>
+          <span className="logo-emblem"><Icons.Pulse /></span>
           <span>Diabetes<span className="logo-accent">AI</span></span>
         </button>
 
         <ul className={`nav-links${menuOpen ? ' nav-open' : ''}`}>
-          {[['about', 'About Diabetes'], ['stats', 'Global Stats'], ['how-it-works', 'Process']].map(([id, label]) => (
+          {[['about', 'About Diabetes'], ['stats', 'Global Stats'], ['how-it-works', 'Methodology']].map(([id, label]) => (
             <li key={id}><button onClick={() => scrollTo(id)}>{label}</button></li>
           ))}
         </ul>
 
-        <div className="nav-actions" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <button 
-            className="theme-toggle" 
-            onClick={toggleTheme} 
+        <div className="nav-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button
+            className="theme-toggle"
+            onClick={toggleTheme}
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? '☀' : '☽'}
           </button>
           <button className="nav-cta" onClick={() => scrollTo('checker')}>Check Risk</button>
-
           <button
             id="hamburger-btn"
             className={`hamburger${menuOpen ? ' hb-open' : ''}`}
@@ -141,69 +151,57 @@ function Navbar({ theme, toggleTheme }) {
   );
 }
 
-/* ═══════════════════════ HERO ═══════════════════════════ */
+/* ═══════════════════════ HERO ══════════════════════════════ */
 
 function Hero() {
   const [mounted, setMounted] = useState(false);
   const [heroRef, heroInView] = useInView(0.05);
+  useEffect(() => { setTimeout(() => setMounted(true), 150); }, []);
 
-  useEffect(() => {
-    setTimeout(() => setMounted(true), 300);
-  }, []);
-
-  const accuracy = useCountUp(80,  2200, heroInView);
-  const samples  = useCountUp(724, 1800, heroInView);
-
+  const accuracy = useCountUp(80,  2000, heroInView);
+  const samples  = useCountUp(724, 2000, heroInView);
   const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
   return (
     <section id="hero" className="hero" ref={heroRef}>
-      <div className="hero-bg" aria-hidden="true">
-        {PARTICLES.map((p, i) => (
-          <span key={i} className="particle" style={{ left: `${p.left}%`, animationDelay: `${p.delay}s`, animationDuration: `${p.dur}s` }} />
-        ))}
-        <div className="blob blob-a" />
-        <div className="blob blob-b" />
-        <div className="blob blob-c" />
-      </div>
-
       <div className="hero-container">
-        <div className={`hero-left${mounted ? ' hero-anim-left' : ''}`}>
+        <div className={`hero-left${mounted ? ' anim-up' : ''}`}>
           <div className="hero-badge">
-            <span className="pulse-dot" /> AI Clinical Assessment
+            <span className="hero-icon"><Icons.Check /></span>
+            Precision Clinical Screening
           </div>
-          <h1 className="hero-title">Know Your<br /><span className="gradient-text">Diabetes Risk</span><br />In Seconds</h1>
+          <h1 className="hero-title">
+            Scientific<br />
+            <span className="gradient-text">Diabetes Risk</span><br />
+            Assessment
+          </h1>
           <p className="hero-subtitle">
-            Our Random Forest AI — precision tuned with strict IQR thresholds — analyzes 7 vital clinical parameters to assess your diabetes probability instantly.
+            A professional clinical screening tool built on a calibrated Random Forest model,
+            validated against 7 biometric parameters with strict IQR data quality thresholds.
           </p>
           <div className="hero-actions">
-            <button className="btn-hero-primary" onClick={() => go('checker')}>🔍 Check My Risk</button>
-            <button className="btn-hero-ghost" onClick={() => go('about')}>Learn More ↓</button>
+            <button className="btn-hero-primary" onClick={() => go('checker')}>Start Screening</button>
+            <button className="btn-hero-ghost"   onClick={() => go('about')}>Research Basis</button>
           </div>
         </div>
 
-        <div className={`hero-right${mounted ? ' hero-anim-right' : ''}`}>
-          <div className="stats-orbit">
-            <div className="orbit-ring ring-1" />
-            <div className="orbit-ring ring-2" />
-            <div className="orbit-ball">
-              <span className="orbit-ball-icon">🤖</span>
-              <span className="orbit-ball-lbl">AI</span>
+        <div className="hero-right">
+          <div className="hero-visual-card">
+            <div className="hvc-header">
+              <span className="hvc-title">Model Performance</span>
+              <span className="hvc-tag">Validated</span>
             </div>
-            <div className="sf sf-top">
-              <span className="sf-icon">🎯</span>
-              <span className="sf-val">{accuracy}%</span>
-              <span className="sf-lbl">Accuracy</span>
+            <div className="hvc-stat">
+              <div className="hvc-stat-lbl">Accuracy — {accuracy}%</div>
+              <div className="hvc-stat-bar"><div className="hvc-stat-fill" style={{ width: `${accuracy}%` }} /></div>
             </div>
-            <div className="sf sf-right">
-              <span className="sf-icon">👥</span>
-              <span className="sf-val">{samples}</span>
-              <span className="sf-lbl">Clean Samples</span>
+            <div className="hvc-stat">
+              <div className="hvc-stat-lbl">Clean Dataset Samples — {samples}</div>
+              <div className="hvc-stat-bar"><div className="hvc-stat-fill" style={{ width: '92%' }} /></div>
             </div>
-            <div className="sf sf-bottom">
-              <span className="sf-icon">🔬</span>
-              <span className="sf-val">7</span>
-              <span className="sf-lbl">Parameters</span>
+            <div className="hvc-stat">
+              <div className="hvc-stat-lbl">Clinical Parameters — 7</div>
+              <div className="hvc-stat-bar"><div className="hvc-stat-fill" style={{ width: '100%' }} /></div>
             </div>
           </div>
         </div>
@@ -212,7 +210,7 @@ function Hero() {
   );
 }
 
-/* ═══════════════════════ ABOUT DIABETES ═════════════════ */
+/* ═══════════════════════ ABOUT DIABETES ════════════════════ */
 
 function AboutDiabetes() {
   const [ref, inView] = useInView(0.1);
@@ -222,24 +220,23 @@ function AboutDiabetes() {
         <header className={`section-header${inView ? ' anim-up' : ''}`}>
           <div className="section-tag">Education</div>
           <h2 className="section-title">Understanding Diabetes</h2>
-          <p className="section-subtitle">A chronic metabolic condition characterized by elevated blood glucose.</p>
+          <p className="section-subtitle">A chronic metabolic disorder characterised by elevated blood glucose levels.</p>
         </header>
-
         <div className={`about-grid${inView ? ' anim-up-delay' : ''}`}>
           <div className="about-card">
-            <span className="ac-icon">🔵</span>
+            <span className="ac-icon"><Icons.Syringe /></span>
             <h3>Type 1</h3>
-            <p>An autoimmune condition where the pancreas produces little to no insulin. Usually diagnosed in childhood, requiring lifelong insulin therapy.</p>
+            <p>An autoimmune condition where the pancreas produces little to no insulin. Typically diagnosed in childhood, requiring lifelong clinical management.</p>
           </div>
           <div className="about-card highlight-card">
-            <span className="ac-icon">🔶</span>
+            <span className="ac-icon"><Icons.Pressure /></span>
             <h3>Type 2</h3>
-            <p>The most common form, occurring when the body becomes resistant to insulin. Highly correlated with BMI, diet, and age. <b>Highly preventable.</b></p>
+            <p>The most prevalent form, arising from insulin resistance. Strongly correlated with BMI, diet, and activity levels. <b>Highly manageable with early detection.</b></p>
           </div>
           <div className="about-card">
-            <span className="ac-icon">🤰</span>
+            <span className="ac-icon"><Icons.Dna /></span>
             <h3>Gestational</h3>
-            <p>Occurs during pregnancy when hormones cause insulin resistance. Usually resolves after birth but increases future Type 2 risk.</p>
+            <p>Occurs during pregnancy due to hormonal insulin resistance. Typically resolves post-partum, but increases lifetime risk of Type 2 significantly.</p>
           </div>
         </div>
       </div>
@@ -247,75 +244,61 @@ function AboutDiabetes() {
   );
 }
 
-/* ═══════════════════════ GLOBAL STATS ═══════════════════ */
+/* ═══════════════════════ GLOBAL STATS ══════════════════════ */
 
 function GlobalStats() {
   const [ref, inView] = useInView(0.1);
-  
   const v1 = useCountUp(537, 2000, inView);
-  const v2 = useCountUp(10, 1500, inView);
+  const v2 = useCountUp(10,  1800, inView);
   const v3 = useCountUp(783, 2200, inView);
-  const v4 = useCountUp(6.7, 1800, inView);
-  
+  const v4 = useCountUp(6,   1600, inView);
+
   return (
     <section id="stats" className="section" ref={ref}>
       <div className="section-container stats-flex">
-        <div className={`stats-text${inView ? ' anim-left' : ''}`}>
+        <div className={`stats-text${inView ? ' anim-up' : ''}`}>
           <div className="section-tag">Global Impact</div>
           <h2 className="section-title">The Silent Epidemic</h2>
           <p className="section-subtitle">
-            According to the World Health Organization (WHO) and the International Diabetes Federation (IDF), diabetes is one of the fastest-growing health emergencies of the 21st century. Predictive AI screening is paramount because over 50% of people with Type 2 diabetes remain completely undiagnosed until severe complications arise.
+            According to the WHO and International Diabetes Federation, diabetes is among the fastest-growing
+            health emergencies of the 21st century. Over 50% of Type 2 cases remain undiagnosed until
+            severe complications emerge — making predictive screening critical.
           </p>
         </div>
-        
-        <div className={`stats-cards${inView ? ' anim-right' : ''}`}>
-          <div className="stat-box">
-            <div className="sb-val">{v1}M</div>
-            <div className="sb-lbl">Adults globally living with diabetes</div>
-          </div>
-          <div className="stat-box">
-            <div className="sb-val">1 in {v2}</div>
-            <div className="sb-lbl">Global adults affected by the disease</div>
-          </div>
-          <div className="stat-box">
-            <div className="sb-val">{v3}M</div>
-            <div className="sb-lbl">Projected global case count by 2045</div>
-          </div>
-          <div className="stat-box">
-            <div className="sb-val">{v4}M</div>
-            <div className="sb-lbl">Annual fatalities attributed to diabetes</div>
-          </div>
+        <div className={`stats-cards${inView ? ' anim-up-delay' : ''}`}>
+          <div className="stat-box"><div className="sb-val">{v1}M</div><div className="sb-lbl">Adults globally living with diabetes</div></div>
+          <div className="stat-box"><div className="sb-val">1 in {v2}</div><div className="sb-lbl">Global adults affected by the condition</div></div>
+          <div className="stat-box"><div className="sb-val">{v3}M</div><div className="sb-lbl">Projected cases worldwide by 2045</div></div>
+          <div className="stat-box"><div className="sb-val">{v4}.7M</div><div className="sb-lbl">Annual fatalities attributed to diabetes</div></div>
         </div>
       </div>
     </section>
   );
 }
 
-/* ═══════════════════════ HOW IT WORKS ══════════════════ */
+/* ═══════════════════════ HOW IT WORKS ══════════════════════ */
 
 function HowItWorks() {
   const [ref, inView] = useInView(0.15);
-
   const steps = [
-    { num: '01', icon: '📝', title: 'Enter Your Data', desc: 'Input your 7 clinical parameters using securely validated interactive sliders.' },
-    { num: '02', icon: '⚙️', title: 'AI Processes', desc: 'Our tuned Random Forest model analyzes mapping patterns simultaneously.' },
-    { num: '03', icon: '📊', title: 'Get Your Result', desc: 'Receive your probability score and a dynamic PDF-ready health recommendation.' },
+    { num: '01', Icon: Icons.Upload,   title: 'Enter Clinical Data',       desc: 'Input your 7 biometric parameters using validated, range-checked sliders and inputs.' },
+    { num: '02', Icon: Icons.Cpu,      title: 'Statistical Processing',    desc: 'A calibrated Random Forest model analyses your data against 724 clean clinical samples.' },
+    { num: '03', Icon: Icons.FileText, title: 'Receive Clinical Insights',  desc: 'Get a 5-tier probability score with personalised action plan, exportable as a PDF report.' },
   ];
 
   return (
     <section id="how-it-works" className="section hiw-section" ref={ref}>
       <div className="section-container">
         <header className={`section-header${inView ? ' anim-up' : ''}`}>
-          <div className="section-tag">Process</div>
+          <div className="section-tag">Methodology</div>
           <h2 className="section-title">How It Works</h2>
-          <p className="section-subtitle">Three simple steps to your personalized risk assessment</p>
+          <p className="section-subtitle">Three structured steps to your personalised risk assessment</p>
         </header>
-
         <div className="steps-grid">
           {steps.map((s, i) => (
-            <div key={s.num} className={`step-card${inView ? ' anim-up' : ''}`} style={{ animationDelay: inView ? `${i * 0.15}s` : '0s' }}>
+            <div key={s.num} className={`step-card${inView ? ' anim-up' : ''}`} style={{ animationDelay: inView ? `${i * 0.12}s` : '0s' }}>
               <div className="step-num">{s.num}</div>
-              <div className="step-icon-wrap">{s.icon}</div>
+              <div className="step-icon-wrap"><s.Icon /></div>
               <h3 className="step-title">{s.title}</h3>
               <p className="step-desc">{s.desc}</p>
             </div>
@@ -326,39 +309,42 @@ function HowItWorks() {
   );
 }
 
-/* ═══════════════════════ PROGRESS RING ═════════════════ */
+/* ═══════════════════════ PROGRESS RING ═════════════════════ */
 
 function CircProgress({ pct, tier }) {
   const R = 56, C = 2 * Math.PI * R;
   const [offset, setOffset] = useState(C);
-  
   useEffect(() => {
     const t = setTimeout(() => setOffset(C - (pct / 100) * C), 120);
     return () => clearTimeout(t);
   }, [pct, C]);
 
   return (
-    <svg viewBox="0 0 140 140" width="148" height="148">
-      <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10" stroke="rgba(255,255,255,0.07)" />
-      <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10" strokeDasharray={C} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 70 70)" className={`circ-fg circ-${tier}`} style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1)' }} />
-      <text x="70" y="64" textAnchor="middle" fill="var(--text)" fontSize="20" fontWeight="bold" fontFamily="Outfit">{pct}%</text>
-      <text x="70" y="83" textAnchor="middle" fill="var(--sub)" fontSize="10">Probability</text>
+    <svg viewBox="0 0 140 140" width="140" height="140">
+      <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10" stroke="var(--bg-subtle)" />
+      <circle cx="70" cy="70" r={R} fill="none" strokeWidth="10"
+        strokeDasharray={C} strokeDashoffset={offset}
+        strokeLinecap="round" transform="rotate(-90 70 70)"
+        className={`circ-fg circ-${tier}`}
+        style={{ transition: 'stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1)' }}
+      />
+      <text x="70" y="64" textAnchor="middle" fill="var(--text)"   fontSize="20" fontWeight="800" fontFamily="Outfit">{pct}%</text>
+      <text x="70" y="82" textAnchor="middle" fill="var(--muted)"  fontSize="10" fontFamily="Inter">Probability</text>
     </svg>
   );
 }
 
-/* ═══════════════════════ CLINICAL TERMS TABLE ═══════════ */
+/* ═══════════════════════ CLINICAL TERMS TABLE ═══════════════ */
 
 function ClinicalTermsTable() {
   const [ref, inView] = useInView(0.15);
-
   const metrics = [
-    { name: 'Glucose', unit: 'mg/dL', desc: 'Plasma glucose concentration over 2 hours in an oral glucose tolerance test. Measures how quickly your body clears glucose from the blood.', normal: 'Under 140 mg/dL' },
-    { name: 'Blood Pressure', unit: 'mmHg', desc: 'Diastolic blood pressure (the bottom number). Measures the pressure in arteries when the heart rests between beats.', normal: 'Under 80 mmHg' },
-    { name: 'Skin Thickness', unit: 'mm', desc: 'Triceps skinfold thickness. A clinical method used to estimate the percentage of total body fat.', normal: '10 - 30 mm' },
-    { name: 'Insulin', unit: 'μU/mL', desc: '2-Hour serum insulin level. High levels indicate insulin resistance, meaning the body needs more insulin to clear glucose.', normal: '16 - 166 mIU/L' },
-    { name: 'BMI', unit: 'kg/m²', desc: 'Body Mass Index. Calculated by dividing weight in kilograms by the square of height in meters.', normal: '18.5 - 24.9' },
-    { name: 'Diabetes Pedigree', unit: 'Score', desc: 'A synthesized score based on family history. Represents the genetic likelihood of developing diabetes depending on relatives.', normal: 'Below 0.50' },
+    { name: 'Glucose',          unit: 'mg/dL',  desc: 'Plasma glucose concentration over 2 hours in an oral glucose tolerance test.',                          normal: 'Under 140 mg/dL'  },
+    { name: 'Blood Pressure',   unit: 'mmHg',   desc: 'Diastolic blood pressure — the pressure in arteries when the heart rests between beats.',               normal: 'Under 80 mmHg'    },
+    { name: 'Skin Thickness',   unit: 'mm',     desc: 'Triceps skinfold thickness, a clinical proxy for estimating total body fat percentage.',                 normal: '10 – 30 mm'       },
+    { name: 'Insulin',          unit: 'μU/mL',  desc: '2-hour serum insulin. Elevated levels indicate insulin resistance.',                                     normal: '16 – 166 mIU/L'  },
+    { name: 'BMI',              unit: 'kg/m²',  desc: 'Body Mass Index — weight (kg) divided by height squared (m²).',                                          normal: '18.5 – 24.9'      },
+    { name: 'Diabetes Pedigree',unit: 'Score',  desc: 'A synthesised score representing genetic likelihood of diabetes based on family history.',               normal: 'Below 0.50'       },
   ];
 
   return (
@@ -368,12 +354,12 @@ function ClinicalTermsTable() {
           <div className="section-tag">Clinical Reference</div>
           <h2 className="section-title">Parameter Guide</h2>
           <p className="section-subtitle">
-            Clinically approved definitions for the biological markers evaluated by our AI.
-            <br/><br/>
-            <strong>Dataset Context:</strong> Our model is calibrated on the historically significant Pima Indian Diabetes dataset. Because this dataset primarily recorded clinical data from women, predictive probabilities for male users are mathematically extrapolated and should be interpreted accordingly.
+            Clinically approved definitions for each biomarker assessed by the model.
+            <br /><br />
+            <strong>Dataset note:</strong> The model is trained on the Pima Indian Diabetes dataset, which consists
+            primarily of female subjects. Predictions for male users are statistically extrapolated.
           </p>
         </header>
-
         <div className={`table-container${inView ? ' anim-up-delay' : ''}`}>
           <table className="clinical-table">
             <thead>
@@ -381,7 +367,7 @@ function ClinicalTermsTable() {
                 <th>Parameter</th>
                 <th>Unit</th>
                 <th>Medical Definition</th>
-                <th>Standard Reference Range</th>
+                <th>Reference Range</th>
               </tr>
             </thead>
             <tbody>
@@ -401,7 +387,7 @@ function ClinicalTermsTable() {
   );
 }
 
-/* ═══════════════════════ CHECKER ════════════════════════ */
+/* ═══════════════════════ CHECKER ════════════════════════════ */
 
 function Checker() {
   const [sectionRef, inView] = useInView(0.08);
@@ -412,9 +398,9 @@ function Checker() {
     } catch { return DEFAULT_VALUES; }
   });
   const [lifestyleMode, setLifestyleMode] = useState(false);
-  const [result, setResult]     = useState(null);
-  const [loading, setLoading]   = useState(false);
-  const [error, setError]       = useState(null);
+  const [result,      setResult]      = useState(null);
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const resultRef = useRef(null);
 
@@ -426,49 +412,42 @@ function Checker() {
     const field = FIELDS.find(f => f.key === key);
     if (!field) return null;
     const v = parseFloat(value);
-    if (isNaN(v)) return 'Required';
-    if (v < field.min) return `Must be ≥ ${field.min}`;
-    if (v > field.max) return `Must be ≤ ${field.max}`;
+    if (isNaN(v))          return 'Required';
+    if (v < field.min)     return `Min ${field.min}`;
+    if (v > field.max)     return `Max ${field.max}`;
     return null;
   };
 
   const handleChange = useCallback((key, value) => {
     setFormData(prev => ({ ...prev, [key]: value }));
-    const err = validateField(key, value);
-    setFieldErrors(prev => ({ ...prev, [key]: err }));
+    setFieldErrors(prev => ({ ...prev, [key]: validateField(key, value) }));
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Final pre-flight validation check
     let hasError = false;
-    let newErrs = {};
+    const newErrs = {};
     Object.keys(formData).forEach(k => {
-      // Skip validation for lab fields if in Lifestyle Mode
       if (lifestyleMode && ['glucose', 'skinThickness', 'insulin'].includes(k)) return;
       const err = validateField(k, formData[k]);
       if (err) { newErrs[k] = err; hasError = true; }
     });
-    if (hasError) { setFieldErrors(newErrs); setError('Please fix the validation errors in the form.'); return; }
+    if (hasError) { setFieldErrors(newErrs); setError('Please fix the validation errors above.'); return; }
 
     setLoading(true); setError(null); setResult(null);
     try {
       const payload = {};
-      Object.keys(formData).forEach(k => payload[k] = parseFloat(formData[k]));
-      
-      // Auto-inject median healthy values if lacking lab results
+      Object.keys(formData).forEach(k => { payload[k] = parseFloat(formData[k]); });
       if (lifestyleMode) {
-        payload.glucose = DEFAULT_VALUES.glucose;
+        payload.glucose       = DEFAULT_VALUES.glucose;
         payload.skinThickness = DEFAULT_VALUES.skinThickness;
-        payload.insulin = DEFAULT_VALUES.insulin;
+        payload.insulin       = DEFAULT_VALUES.insulin;
       }
-
       const res = await axios.post('http://localhost:8000/predict', payload);
       setResult(res.data);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
     } catch (err) {
-      setError(err.response?.data?.detail?.[0]?.msg || 'Could not connect to the backend API.');
+      setError(err.response?.data?.detail?.[0]?.msg || 'Could not connect to the backend API. Ensure the server is running.');
     } finally {
       setLoading(false);
     }
@@ -478,14 +457,13 @@ function Checker() {
 
   const downloadPDF = () => {
     if (!resultRef.current) return;
-    const opt = {
-      margin:       0.5,
-      filename:     'Diabetes_AI_Risk_Report.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, logging: false },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(resultRef.current).save();
+    html2pdf().set({
+      margin: 0.5,
+      filename: 'DiabetesAI_Risk_Report.pdf',
+      image:     { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF:     { unit: 'in', format: 'letter', orientation: 'portrait' },
+    }).from(resultRef.current).save();
   };
 
   const getSliderPct = (f) => {
@@ -495,12 +473,8 @@ function Checker() {
 
   const getRiskTier = (pred) => {
     if (!pred) return 'low';
-    if (pred === 'Very Low Risk') return 'very-low';
-    if (pred === 'Low Risk') return 'low';
-    if (pred === 'Moderate Risk') return 'moderate';
-    if (pred === 'High Risk') return 'high';
-    if (pred === 'Very High Risk') return 'very-high';
-    return 'low';
+    const map = { 'Very Low Risk': 'very-low', 'Low Risk': 'low', 'Moderate Risk': 'moderate', 'High Risk': 'high', 'Very High Risk': 'very-high' };
+    return map[pred] || 'low';
   };
 
   const riskTier = getRiskTier(result?.prediction);
@@ -512,13 +486,13 @@ function Checker() {
         <header className={`section-header${inView ? ' anim-up' : ''}`}>
           <div className="section-tag">Assessment</div>
           <h2 className="section-title">Check Your Risk</h2>
-          <p className="section-subtitle">Enter your clinical readings below. The system rigorously validates data against biological thresholds.</p>
-          <label className="mode-toggle" title="Enable this if you don't know your lab results like Insulin or Glucose">
+          <p className="section-subtitle">Enter your clinical readings. All values are validated against biological reference ranges.</p>
+          <label className="mode-toggle" title="Enable if you don't have recent lab results">
             <div className="switch">
               <input type="checkbox" checked={lifestyleMode} onChange={e => setLifestyleMode(e.target.checked)} />
-              <div className="slider round"></div>
+              <div className="slider round" />
             </div>
-            <span className="mode-lbl">Lifestyle Mode (Missing Lab Results)</span>
+            <span className="mode-lbl">Lifestyle Mode — I don't have lab results</span>
           </label>
         </header>
 
@@ -527,22 +501,21 @@ function Checker() {
             <div className="fields-grid">
               {FIELDS.map((f) => {
                 if (lifestyleMode && ['glucose', 'skinThickness', 'insulin'].includes(f.key)) return null;
-
-                const pct = getSliderPct(f);
+                const pct   = getSliderPct(f);
                 const isErr = !!fieldErrors[f.key];
                 return (
                   <div className="field-block" key={f.key}>
                     <div className="field-header">
                       <label className="field-label">
-                        <span className="field-icon">{f.icon}</span> {f.label}
+                        <span className="field-icon"><f.Icon /></span>
+                        {f.label}
                       </label>
                       <span className="field-unit">{f.unit}</span>
                     </div>
-
                     <div className="input-wrap">
                       <input
                         type="number"
-                        className={`field-num ${isErr ? 'input-err' : ''}`}
+                        className={`field-num${isErr ? ' input-err' : ''}`}
                         min={f.min} max={f.max} step={f.step}
                         value={formData[f.key] === '' ? '' : formData[f.key]}
                         onChange={e => handleChange(f.key, e.target.value)}
@@ -550,7 +523,6 @@ function Checker() {
                       />
                       {isErr && <span className="err-msg">{fieldErrors[f.key]}</span>}
                     </div>
-
                     <input
                       type="range"
                       className="field-slider"
@@ -566,9 +538,11 @@ function Checker() {
             </div>
 
             <div className="form-actions">
-              <button type="button" className="btn-secondary" onClick={handleReset}>↺ Reset</button>
-              <button type="submit" className="btn-primary" disabled={loading}>
-                {loading ? <><span className="spinner"/> Analyzing</> : '🔍 Analyze Risk'}
+              <button type="button" className="btn-secondary" onClick={handleReset}>Reset</button>
+              <button type="submit"  className="btn-primary"  disabled={loading}>
+                {loading
+                  ? <><span className="spinner" /> Analysing…</>
+                  : <>Analyse Risk</>}
               </button>
             </div>
           </form>
@@ -576,7 +550,8 @@ function Checker() {
 
         {error && (
           <div className="error-card anim-up">
-            <span className="error-icon">⚠️</span> <p>{error}</p>
+            <span className="error-icon"><Icons.Alert /></span>
+            <p>{error}</p>
           </div>
         )}
 
@@ -584,40 +559,36 @@ function Checker() {
           <div className="result-wrapper anim-up">
             <div id="pdf-container" ref={resultRef} className={`result-card result-${riskTier}`}>
               <div className="result-header-print">
-                <h3>🩺 DiabetesAI Clinical Report</h3>
-                <p>Generated strictly for informational & screening purposes.</p>
+                <h3>DiabetesAI Clinical Report</h3>
+                <p>Generated for informational and screening purposes only.</p>
               </div>
 
               <div className="result-body">
                 <div className="result-info">
-                  <div className={`risk-badge badge-${riskTier}`}>
-                    {result.prediction}
-                  </div>
-                  
+                  <div className={`risk-badge badge-${riskTier}`}>{result.prediction}</div>
                   <p className="result-analysis">{result.analysis}</p>
-
                   <div className="precautions-box">
-                    <h3 className="precautions-title">📋 Recommended Action Plan</h3>
+                    <h3 className="precautions-title">Clinical Recommendations</h3>
                     <ul className="precautions-list">
                       {result.precautions.map((p, i) => (
-                        <li key={i} className="precaution-item"><span className="prec-dot"/>{p}</li>
+                        <li key={i} className="precaution-item"><span className="prec-dot" />{p}</li>
                       ))}
                     </ul>
                   </div>
                 </div>
-
                 <div className="result-visual">
                   <CircProgress pct={probNum} tier={riskTier} />
                 </div>
               </div>
-              
+
               <div className="result-disclaimer">
-                <strong>⚕️ Medical Disclaimer:</strong> This AI tool provides screening data, not a medical diagnosis. Always consult a licensed healthcare professional regarding clinical decisions.
+                <strong>Medical Disclaimer:</strong> This tool provides screening probability data and is not a
+                substitute for a clinical diagnosis. Always consult a licensed healthcare professional.
               </div>
             </div>
 
             <button className="btn-download" onClick={downloadPDF}>
-              📄 Download PDF Report
+              <Icons.FileText /> Download PDF Report
             </button>
           </div>
         )}
@@ -626,12 +597,10 @@ function Checker() {
   );
 }
 
-/* ═══════════════════════ ROOT APP ═══════════════════════ */
+/* ═══════════════════════ ROOT APP ═══════════════════════════ */
 
 export default function App() {
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('diabetesTheme') || 'dark';
-  });
+  const [theme, setTheme] = useState(() => localStorage.getItem('diabetesTheme') || 'dark');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -651,7 +620,7 @@ export default function App() {
       <ClinicalTermsTable />
       <Checker />
       <footer className="footer-bottom">
-        <p>© 2026 DiabetesAI · Not a substitute for medical advice</p>
+        <p>© 2026 DiabetesAI &nbsp;·&nbsp; For informational purposes only &nbsp;·&nbsp; Not a substitute for medical advice</p>
       </footer>
     </div>
   );
