@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: diabetes-risk-checker
+metadata:
+    template: azd-init@1.24.1
+services:
+    backend:
+        project: backend
+        host: containerapp
+        language: python
+        docker:
+            remoteBuild: true
+    frontend:
+        project: frontend
+        host: containerapp
+        language: js
+        docker:
+            remoteBuild: true
+        dist: build
+resources:
+    backend:
+        type: host.containerapp
+        port: 80
+    frontend:
+        type: host.containerapp
+        uses:
+            - backend
+        port: 80
