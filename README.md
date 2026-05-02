@@ -4,7 +4,7 @@ An AI-powered web application that predicts diabetes risk using clinical health 
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 diabetes-risk-checker/
@@ -29,7 +29,7 @@ diabetes-risk-checker/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Train the Model (Optional — model already included)
 
@@ -60,7 +60,7 @@ Frontend will be live at `http://localhost:3000`
 
 ---
 
-## 🧪 Health Parameters Used
+## Health Parameters Used
 
 | Parameter | Description | Unit |
 |---|---|---|
@@ -75,7 +75,7 @@ Frontend will be live at `http://localhost:3000`
 
 ---
 
-## 🤖 Model Details
+## Model Details
 
 - **Algorithm**: Random Forest Classifier
 - **Estimators**: 200 trees, max depth: 10
@@ -84,13 +84,13 @@ Frontend will be live at `http://localhost:3000`
 
 ---
 
-## ⚕️ Disclaimer
+## Disclaimer
 
 This tool is for **informational and educational purposes only**. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: React 18, Axios
 - **Backend**: FastAPI, Uvicorn, Pydantic
